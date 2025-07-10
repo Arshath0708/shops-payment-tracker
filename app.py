@@ -2,55 +2,46 @@ import streamlit as st
 import pandas as pd
 import os
 
-# --- Setup ---
-st.set_page_config(page_title="🧾 Shop Payment Tracker", layout="centered")
+file_name = "shop_data.xlsx"
 
-# --- Constants ---
-EXCEL_FILE = "shop_data.xlsx"
-COLUMNS = ["Shop Name", "Total Amount (₹)", "Paid Amount (₹)", "Remaining Amount (₹)"]
+# Ensure correct structure
+expected_columns = ["Shop Name", "Total Amount", "Paid Amount", "Remaining Amount"]
 
-# --- Load or Create Excel File ---
-if os.path.exists(EXCEL_FILE):
+if os.path.exists(file_name):
     try:
-        df = pd.read_excel(EXCEL_FILE, engine="openpyxl")
-        df = df[COLUMNS]  # Ensure column order
-    except Exception as e:
-        st.error("⚠️ Error reading Excel file. Creating new.")
-        df = pd.DataFrame(columns=COLUMNS)
+        df = pd.read_excel(file_name)
+        if not all(col in df.columns for col in expected_columns):
+            df = pd.DataFrame(columns=expected_columns)
+    except:
+        df = pd.DataFrame(columns=expected_columns)
 else:
-    df = pd.DataFrame(columns=COLUMNS)
+    df = pd.DataFrame(columns=expected_columns)
 
-# --- UI ---
-st.title("🧾 Shop Payment Tracker")
+st.title("🧾 Shop Payment Tracker v2")
 
-with st.form("payment_form"):
-    shop_name = st.text_input("🛍️ Shop Name").strip()
-    total_amount = st.number_input("💰 Total Amount (₹)", min_value=0)
-    paid_amount = st.number_input("✅ Paid Amount (₹)", min_value=0)
-    submitted = st.form_submit_button("💾 Save Payment")
+shop_name = st.text_input("🛍️ Shop Name")
+total_amount = st.number_input("💰 Total Amount (₹)", min_value=0)
+paid_amount = st.number_input("✅ Paid Amount (₹)", min_value=0)
 
-if submitted:
-    if not shop_name:
-        st.warning("❗ Shop name is required.")
-    elif paid_amount > total_amount:
-        st.error("❌ Paid amount cannot be more than total amount.")
+if st.button("Add / Update"):
+    if shop_name:
+        if shop_name in df["Shop Name"].values:
+            idx = df[df["Shop Name"] == shop_name].index[0]
+            df.at[idx, "Paid Amount"] += paid_amount
+            df.at[idx, "Remaining Amount"] = df.at[idx, "Total Amount"] - df.at[idx, "Paid Amount"]
+        else:
+            remaining = total_amount - paid_amount
+            new_data = {
+                "Shop Name": shop_name,
+                "Total Amount": total_amount,
+                "Paid Amount": paid_amount,
+                "Remaining Amount": remaining
+            }
+            df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)
+        df.to_excel(file_name, index=False)
+        st.success("Data saved successfully!")
     else:
-        remaining = total_amount - paid_amount
-        new_row = pd.DataFrame([{
-            "Shop Name": shop_name,
-            "Total Amount (₹)": total_amount,
-            "Paid Amount (₹)": paid_amount,
-            "Remaining Amount (₹)": remaining
-        }])
-        df = pd.concat([df, new_row], ignore_index=True)
-        try:
-            df.to_excel(EXCEL_FILE, index=False, engine="openpyxl")
-            st.success(f"✅ Saved for '{shop_name}' – Remaining ₹{remaining}")
-        except Exception as e:
-            st.error(f"❌ Error saving to Excel: {e}")
+        st.error("Please enter a shop name.")
 
-# --- Display Data ---
-st.divider()
 st.subheader("📊 All Payments")
-st.dataframe(df, use_container_width=True)
-
+st.dataframe(df)
