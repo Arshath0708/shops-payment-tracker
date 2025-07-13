@@ -18,7 +18,8 @@ A simple and user-friendly Streamlit web app to track customer/shop payments and
 - OpenPyXL 📄
 
 ## 📷 Screenshot
-![Shop Payment Tracker Screenshot](Screenshot%202025-07-13%20123304.png)
+[![Shop Tracker Screenshot](https://raw.githubusercontent.com/Arshath0708/shops-payment-tracker/main/Screenshot%202025-07-13%20123304.png)](https://shops-payment-tracker-arshath0708.streamlit.app)
+
 
 ## 🔗 Live App
 [Click here to use the App](https://shops-payment-tracker-<arshath0708>.streamlit.app)
