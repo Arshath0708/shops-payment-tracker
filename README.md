@@ -22,8 +22,7 @@ A simple and user-friendly Streamlit web app to track customer/shop payments and
 
 
 ## 🔗 Live App
-[Click here to use the App](https://shops-payment-tracker-<Arshath0708>.streamlit.app)
-
+[Click here to use the App](https://shops-payment-tracker-cc6cgvnwnjhthatien7e7t.streamlit.app/)
 ## 📁 Installation
 
 ```bash
